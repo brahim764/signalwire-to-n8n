@@ -13,7 +13,7 @@ app.post('/call', async (req, res) => {
 
   // Envoie les données à n8n
   try {
-    await axios.post('https://tafraout.app.n8n.cloud/webhook/webhook-rdv',  data);
+    await axios.post('https://tafraout.app.n8n.cloud/webhook-test/webhook-rdv',  data);
     res.type('text/xml');
     res.send('<Response><Say language="fr">Votre demande est traitée</Say></Response>');
   } catch (err) {
