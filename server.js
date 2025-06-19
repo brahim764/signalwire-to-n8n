@@ -3,17 +3,15 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 const app = express();
-
-// Middleware pour parser application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Route pour recevoir les appels entrants de SignalWire
+// Route pour les appels entrants (SignalWire)
 app.post('/call', async (req, res) => {
   const data = req.body;
 
   console.log("Données reçues par Render :", data);
 
-  // Envoie les données à ton webhook n8n
+  // Envoie les données à n8n
   try {
     await axios.post('https://tafraout.app.n8n.cloud/webhook/webhook-rdv',  data);
     res.type('text/xml');
