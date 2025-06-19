@@ -5,24 +5,46 @@ const axios = require('axios');
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Route webhook pour SignalWire
-app.post('/webhook', async (req, res) => {
+// Route pour les appels entrants (SignalWire)
+app.post('/call', async (req, res) => {
   const from = req.body.From;
-  const body = req.body.Body || '';
-  console.log("Données reçues :", req.body);
+  console.log("Appel reçu de :", from);
 
   const payload = {
     intent: "prise_rdv",
     name_id: from,
     phone: from,
-    message: body,
     type: "appel"
+  };
+
+  try {
+    // Envoie les données à n8n
+    await axios.post("https://ton-n8n-url/webhook/chemin-du-webhook",  payload);
+    res.type('text/xml');
+    res.send(`<Response><Say>Votre demande est traitée</Say></Response>`);
+  } catch (err) {
+    console.error("Erreur envoi à n8n :", err.message);
+    res.status(500).send("Erreur");
+  }
+});
+
+// Route pour les SMS entrants (SignalWire)
+app.post('/sms', async (req, res) => {
+  const from = req.body.From;
+  const message = req.body.Body;
+  console.log("SMS reçu de", from, ":", message);
+
+  const payload = {
+    intent: "info_rdv",
+    name_id: from,
+    phone: from,
+    message: message
   };
 
   try {
     await axios.post("https://ton-n8n-url/webhook/chemin-du-webhook",  payload);
     res.type('text/xml');
-    res.send(`<Response><Say>Votre demande est traitée</Say></Response>`);
+    res.send(`<Response><Message>Reçu !</Message></Response>`);
   } catch (err) {
     console.error("Erreur envoi à n8n :", err.message);
     res.status(500).send("Erreur");
