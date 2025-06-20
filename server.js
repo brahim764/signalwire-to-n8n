@@ -11,14 +11,22 @@ app.post('/call', async (req, res) => {
 
   console.log("Données reçues par Render :", data);
 
-  // Envoie les données à ton webhook n8n
+  // Vérifie que les données sont valides
+  if (!data || !data.text) {
+    console.error("Données invalides reçues : ", data);
+    return res.status(400).send('<Response><Say language="fr">Désolé, nous n’avons pas compris votre demande.</Say></Response>');
+  }
+
   try {
+    // Envoie les données à ton webhook n8n
     await axios.post('https://tafraout.app.n8n.cloud/webhook/webhook-rdv',  data);
+
+    // Réponds uniquement après avoir envoyé les données à n8n
     res.type('text/xml');
-    res.send('<Response><Say language="fr">Votre demande est traitée</Say></Response>');
+    res.send('<Response><Say language="fr">Merci, nous avons bien reçu votre demande. Veuillez patienter pendant que nous traitons votre requête.</Say></Response>');
   } catch (err) {
     console.error("Erreur envoi à n8n :", err.message);
-    res.status(500).send('<Response><Say>Erreur interne</Say></Response>');
+    res.status(500).send('<Response><Say language="fr">Désolé, une erreur s’est produite. Veuillez réessayer plus tard.</Say></Response>');
   }
 });
 
