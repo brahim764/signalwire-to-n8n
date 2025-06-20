@@ -1,38 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios');
-
 const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
 
-// Route pour les appels entrants
-app.post('/call', async (req, res) => {
-  const data = req.body;
-  console.log("Données reçues par Render :", data);
-  try {
-    // Envoie la requête à n8n
-    const n8nResponse = await axios.post('https://tafraout.app.n8n.cloud/webhook/webhook-rdv', data);
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-    // Récupère la réponse de n8n (texte pur ou JSON)
-    let twiml;
-    if (typeof n8nResponse.data === 'string') {
-      twiml = n8nResponse.data;
-    } else if (n8nResponse.data && n8nResponse.data.twiml) {
-      twiml = n8nResponse.data.twiml;
-    } else {
-      twiml = '<Response><Say>Demande traitée</Say></Response>';
-    }
-
-    res.type('text/xml');
-    res.send(twiml);
-  } catch (err) {
-    console.error("Erreur envoi à n8n :", err.message);
-    res.status(500).send('<Response><Say>Erreur interne</Say></Response>');
-  }
+app.post('/call', (req, res) => {
+  res.set('Content-Type', 'text/xml');
+  res.send(`
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Response>
+      <Say language="fr-FR">Test direct Render, si vous entendez ce message, la connexion SignalWire vers Render fonctionne.</Say>
+    </Response>
+  `);
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur port ${PORT}`);
+  console.log('Server started on port', PORT);
 });
